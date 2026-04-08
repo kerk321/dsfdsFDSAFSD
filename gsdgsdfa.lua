@@ -4462,7 +4462,7 @@ do
 				Flag = Data.Flag or Data.flag or Library:NextFlag(),
 				Items = Data.Items or Data.items or Data.Options or Data.options or { "One", "Two", "Three" },
 				Default = Data.Default or Data.default or nil,
-				MaxSize = Data.MaxSize or Data.maxsize or 75,
+				MaxSize = Data.MaxSize or Data.maxsize or 150,
 				Callback = Data.Callback or Data.callback or function() end,
 				Multi = Data.Multi or Data.multi or false,
 
@@ -4568,26 +4568,6 @@ do
 					ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
 				}):AddToTheme({ Color = "Border" })
 
-				Items["Search"] = Instances:Create("TextBox", {
-					Parent = Items["OptionHolder"].Instance,
-					Name = "\0",
-					FontFace = Library.Font,
-					TextColor3 = FromRGB(255, 255, 255),
-					TextTransparency = 0.5,
-					Text = "",
-					Size = UDim2New(1, -8, 0, 15),
-					Position = UDim2New(0, 4, 0, 4),
-					BorderSizePixel = 0,
-					BorderColor3 = FromRGB(0, 0, 0),
-					BackgroundTransparency = 1,
-					PlaceholderColor3 = FromRGB(255, 255, 255),
-					TextXAlignment = Enum.TextXAlignment.Left,
-					PlaceholderText = "Search..",
-					TextSize = 12,
-					BackgroundColor3 = FromRGB(255, 255, 255),
-				})
-				Items["Search"]:AddToTheme({ TextColor3 = "Text" })
-
 				Items["Holder"] = Instances:Create("ScrollingFrame", {
 					Parent = Items["OptionHolder"].Instance,
 					Name = "\0",
@@ -4599,9 +4579,9 @@ do
 					MidImage = "rbxassetid://93024691806056",
 					BorderColor3 = FromRGB(0, 0, 0),
 					ScrollBarThickness = 4,
-					Size = UDim2New(1, -4, 1, -26),
+					Size = UDim2New(1, -4, 1, -4),
 					BackgroundTransparency = 1,
-					Position = UDim2New(0, 0, 0, 22),
+					Position = UDim2New(0, 0, 0, 2),
 					BottomImage = "rbxassetid://93024691806056",
 					TopImage = "rbxassetid://93024691806056",
 					BackgroundColor3 = FromRGB(255, 255, 255),
@@ -4979,36 +4959,6 @@ do
 					end
 
 					Dropdown:SetOpen(false)
-				end
-			end)
-
-			local SearchStepped
-
-			Items["Search"]:Connect("Focused", function()
-				SearchStepped = RunService.RenderStepped:Connect(function()
-					for Index, Value in Dropdown.Options do
-						if Items["Search"].Instance.Text ~= "" then
-							if
-								StringFind(
-									StringLower(Value.Name),
-									Library:EscapePattern(StringLower(Items["Search"].Instance.Text))
-								)
-							then
-								Value.Button.Instance.Visible = true
-							else
-								Value.Button.Instance.Visible = false
-							end
-						else
-							Value.Button.Instance.Visible = true
-						end
-					end
-				end)
-			end)
-
-			Items["Search"]:Connect("FocusLost", function()
-				if SearchStepped then
-					SearchStepped:Disconnect()
-					SearchStepped = nil
 				end
 			end)
 
