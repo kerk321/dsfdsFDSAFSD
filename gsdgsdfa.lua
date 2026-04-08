@@ -437,22 +437,25 @@ do
 			local Gui = self.Instance
 			local Dragging = false
 			local DragStart
-			local StartPosition
+			local StartAbsolutePosition
 
 			local Set = function(Input)
 				local DragDelta = Input.Position - DragStart
-				local NewX = StartPosition.X.Offset + DragDelta.X
-				local NewY = StartPosition.Y.Offset + DragDelta.Y
+				local NewX = StartAbsolutePosition.X + DragDelta.X
+				local NewY = StartAbsolutePosition.Y + DragDelta.Y
 
 				local ScreenSize = Gui.Parent.AbsoluteSize
 				local GuiSize = Gui.AbsoluteSize
+				local AnchorPoint = Gui.AnchorPoint
 
 				NewX = MathClamp(NewX, 0, ScreenSize.X - GuiSize.X)
 				NewY = MathClamp(NewY, 0, ScreenSize.Y - GuiSize.Y)
 
-				self:Tween(
-					TweenInfo.new(0.35, Enum.EasingStyle.Quart, Enum.EasingDirection.Out),
-					{ Position = UDim2New(0, NewX, 0, NewY) }
+				Gui.Position = UDim2New(
+					0,
+					NewX + (GuiSize.X * AnchorPoint.X),
+					0,
+					NewY + (GuiSize.Y * AnchorPoint.Y)
 				)
 			end
 
@@ -465,7 +468,7 @@ do
 				then
 					Dragging = true
 					DragStart = Input.Position
-					StartPosition = Gui.Position
+					StartAbsolutePosition = Gui.AbsolutePosition
 
 					if InputChanged then
 						return
@@ -3567,7 +3570,7 @@ do
 				local MobileToggle = Instances:Create("TextButton", {
 					Parent = Library.Holder.Instance,
 					Name = "\0",
-					Text = "UI",
+					Text = "",
 					FontFace = Library.Font,
 					TextSize = 16,
 					TextColor3 = FromRGB(255, 255, 255),
