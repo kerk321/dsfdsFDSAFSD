@@ -3307,10 +3307,10 @@ do
 				local _WindowSize
 				if ViewportSize.X <= 600 or ViewportSize.Y <= 600 then
 					-- Phone (small/portrait screen)
-					_WindowSize = UDim2New(0, MathMin(ViewportSize.X - 20, 340), 0, MathMin(ViewportSize.Y - 60, 420))
+					_WindowSize = UDim2New(0, MathMin(ViewportSize.X - 16, 420), 0, MathMin(ViewportSize.Y - 72, 560))
 				elseif ViewportSize.X <= 1100 or IsMobile then
 					-- Tablet
-					_WindowSize = UDim2New(0, MathMin(ViewportSize.X - 60, 510), 0, MathMin(ViewportSize.Y - 100, 480))
+					_WindowSize = UDim2New(0, MathMin(ViewportSize.X - 32, 560), 0, MathMin(ViewportSize.Y - 72, 520))
 				else
 					-- PC
 					_WindowSize = UDim2New(0, 621, 0, 542)
@@ -3330,9 +3330,25 @@ do
 
 				Library.MainFrame = Items["MainFrame"].Instance
 
+				local function ApplyResponsiveWindowSize()
+					if not IsMobile then
+						return
+					end
+					local currentViewport = Camera.ViewportSize
+					if currentViewport.X <= 600 or currentViewport.Y <= 600 then
+						Items["MainFrame"].Instance.Size = UDim2New(0, MathMin(currentViewport.X - 16, 420), 0, MathMin(currentViewport.Y - 72, 560))
+					else
+						Items["MainFrame"].Instance.Size = UDim2New(0, MathMin(currentViewport.X - 32, 560), 0, MathMin(currentViewport.Y - 72, 520))
+					end
+					Items["MainFrame"].Instance.Position = UDim2New(0.5, 0, 0.5, 0)
+				end
+
 				Items["MainFrame"]:MakeDraggable()
 				if not IsMobile then
 					Items["MainFrame"]:MakeResizeable(Vector2New(621, 542), Vector2New(9999, 9999))
+				else
+					Library:Connect(Camera:GetPropertyChangedSignal("ViewportSize"), ApplyResponsiveWindowSize)
+					ApplyResponsiveWindowSize()
 				end
 
 				Items["UIStroke"] = Instances:Create("UIStroke", {
@@ -3477,6 +3493,11 @@ do
 			local Debounce = false
 
 			function Window:SetCenter()
+				if IsMobile then
+					Items["MainFrame"].Instance.AnchorPoint = Vector2New(0.5, 0.5)
+					Items["MainFrame"].Instance.Position = UDim2New(0.5, 0, 0.5, 0)
+					return
+				end
 				local CenterPosition = Items["MainFrame"].Instance.AbsolutePosition
 				task.wait()
 				Items["MainFrame"].Instance.AnchorPoint = Vector2New(0, 0)
@@ -3541,30 +3562,41 @@ do
 			task.wait()
 			Window:SetOpen(true)
 
-			-- Mobile open/close toggle button (top-left, small black circle, draggable)
+			-- Mobile open/close toggle button (top-right, large black box, draggable)
 			if IsMobile then
 				local MobileToggle = Instances:Create("TextButton", {
 					Parent = Library.Holder.Instance,
 					Name = "\0",
-					Text = "",
+					Text = "UI",
+					FontFace = Library.Font,
+					TextSize = 16,
+					TextColor3 = FromRGB(255, 255, 255),
 					AutoButtonColor = false,
-					Size = UDim2New(0, 30, 0, 30),
-					Position = UDim2New(0, 10, 0, 10),
+					AnchorPoint = Vector2New(1, 0),
+					Size = UDim2New(0, 64, 0, 36),
+					Position = UDim2New(1, -10, 0, 10),
 					BackgroundColor3 = FromRGB(0, 0, 0),
 					BorderSizePixel = 0,
 					ZIndex = 9999,
 				})
+				MobileToggle:AddToTheme({ TextColor3 = "Text" })
 
 				Instances:Create("UICorner", {
 					Parent = MobileToggle.Instance,
 					Name = "\0",
-					CornerRadius = UDimNew(1, 0),
+					CornerRadius = UDimNew(0, 6),
 				})
+
+				Instances:Create("UIStroke", {
+					Parent = MobileToggle.Instance,
+					Name = "\0",
+					Color = FromRGB(46, 52, 61),
+					LineJoinMode = Enum.LineJoinMode.Miter,
+					ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+				}):AddToTheme({ Color = "Border" })
 
 				MobileToggle:MakeDraggable()
 
-				-- TouchTap fires on mobile for a short tap (no movement), so toggle works
-				-- while MakeDraggable handles moves — they don't conflict
 				MobileToggle:Connect("MouseButton1Down", function()
 					Window:SetOpen(not Window.IsOpen)
 				end)
